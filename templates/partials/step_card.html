@@ -24,7 +24,7 @@
 
   <div style="margin-top:1.5rem;padding-top:1.5rem;border-top:3px dashed {{ theme.border }};">
     {% if step.operation in ['SubNibble', 'InvSubNibble'] and step.trace %}
-    <p class="field-label">Substitution Trace</p>
+    <p class="field-label">Jalur Substitusi</p>
     <div class="trace-grid">
       {% for t in step.trace %}
       <div style="background:{{ color }};border:3px solid {{ theme.border }};box-shadow:3px 3px 0px {{ theme.shadow }};padding:1rem 1.25rem;margin-bottom:0.75rem;">
@@ -40,7 +40,7 @@
     </div>
 
     {% elif step.operation == 'AddRoundKey' and step.trace %}
-    <p class="field-label">XOR Operations</p>
+    <p class="field-label">Operasi XOR</p>
     <div class="trace-grid">
       {% for t in step.trace %}
       <div style="background:{{ theme.surface_elevated }};border:3px solid {{ theme.border }};box-shadow:3px 3px 0px {{ theme.shadow }};padding:1rem 1.25rem;">
@@ -55,13 +55,13 @@
     </div>
 
     {% elif step.operation in ['ShiftRows', 'InvShiftRows'] and step.trace %}
-    <p class="field-label">Row Shift Details</p>
+    <p class="field-label">Detail Pergeseran Baris</p>
     {% for r in [0, 1] %}
     {% set row_key = 'row' ~ r %}
     {% set row_data = step.trace[row_key] %}
     <div style="background:{{ theme.surface_elevated }};border:3px solid {{ theme.border }};box-shadow:3px 3px 0px {{ theme.shadow }};padding:1rem 1.25rem;margin-bottom:0.75rem;">
       <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-        <span class="mono" style="font-weight:900;width:40px;">Row {{ r }}</span>
+        <span class="mono" style="font-weight:900;width:40px;">Baris {{ r }}</span>
         {% for n in row_data.before %}
         <span class="mono" style="font-weight:900;background:{{ theme.bg_alt }};border:2px solid {{ theme.border }};padding:4px 8px;">{{ n|hex_pad(1) }}</span>
         {% endfor %}
@@ -69,17 +69,17 @@
         {% for n in row_data.after %}
         <span class="mono" style="font-weight:900;background:{{ theme.primary if row_data.shifted else theme.bg_alt }};border:2px solid {{ theme.border }};padding:4px 8px;">{{ n|hex_pad(1) }}</span>
         {% endfor %}
-        {% if r == 0 %}<span style="font-size:0.65rem;font-weight:700;color:{{ theme.text_muted }};">unchanged</span>{% endif %}
-        {% if r == 1 and row_data.shifted %}<span style="font-size:0.65rem;font-weight:900;background:{{ theme.gold }};border:2px solid {{ theme.border }};padding:2px 6px;color:{{ theme.border_dark }};">shifted ↔</span>{% endif %}
+        {% if r == 0 %}<span style="font-size:0.65rem;font-weight:700;color:{{ theme.text_muted }};">tidak berubah</span>{% endif %}
+        {% if r == 1 and row_data.shifted %}<span style="font-size:0.65rem;font-weight:900;background:{{ theme.gold }};border:2px solid {{ theme.border }};padding:2px 6px;color:{{ theme.border_dark }};">digeser ↔</span>{% endif %}
       </div>
     </div>
     {% endfor %}
 
     {% elif step.operation in ['MixColumns', 'InvMixColumns'] and step.trace %}
-    <p class="field-label">GF(2⁴) Column Operations</p>
+    <p class="field-label">Operasi Kolom GF(2⁴)</p>
     {% for t in step.trace %}
     <div style="background:{{ theme.surface_elevated }};border:3px solid {{ theme.border }};box-shadow:3px 3px 0px {{ theme.shadow }};padding:1rem 1.25rem;margin-bottom:0.75rem;">
-      <p style="font-weight:900;font-size:0.7rem;text-transform:uppercase;margin-bottom:8px;">Column {{ t.col }}</p>
+      <p style="font-weight:900;font-size:0.7rem;text-transform:uppercase;margin-bottom:8px;">Kolom {{ t.col }}</p>
       {% for eq in t.equations %}
       <p class="mono" style="font-size:0.72rem;font-weight:700;margin-bottom:4px;">{{ eq }}</p>
       {% endfor %}

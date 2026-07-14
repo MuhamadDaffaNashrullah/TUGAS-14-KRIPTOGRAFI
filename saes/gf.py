@@ -9,7 +9,7 @@ def gf_multiply(a, b):
     multiplicand = b & 0xF
 
     steps.append({
-        "description": f"Start: {_to_hex(a)} × {_to_hex(b)} in GF(2⁴)",
+        "description": f"Mulai: {_to_hex(a)} × {_to_hex(b)} di GF(2⁴)",
         "a": multiplier,
         "b": multiplicand,
         "product": 0,
@@ -21,7 +21,7 @@ def gf_multiply(a, b):
             before = product
             product ^= multiplier
             steps.append({
-                "description": f"Bit {i} of b is 1: XOR result with {_to_hex(multiplier)} (shifted a)",
+                "description": f"Bit ke-{i} dari b bernilai 1: XOR hasil sementara dengan {_to_hex(multiplier)} (a yang telah digeser)",
                 "a": multiplier,
                 "b": multiplicand,
                 "product": product,
@@ -37,7 +37,7 @@ def gf_multiply(a, b):
             before = multiplier
             multiplier ^= 0x3
             steps.append({
-                "description": "MSB was 1: reduce by XOR with 0x3 (x+1 part of irreducible poly)",
+                "description": "MSB bernilai 1: reduksi dengan XOR 0x3 (bagian x+1 dari polinomial ireduksibel x⁴+x+1)",
                 "a": multiplier,
                 "b": multiplicand,
                 "product": product,
@@ -49,12 +49,13 @@ def gf_multiply(a, b):
         multiplicand >>= 1
 
     steps.append({
-        "description": f"Final result: {_to_hex(a)} × {_to_hex(b)} = {_to_hex(product)}",
+        "description": f"Hasil akhir: {_to_hex(a)} × {_to_hex(b)} = {_to_hex(product)}",
         "a": a,
         "b": b,
         "product": product,
         "final": True,
     })
+
 
     return {"result": product & 0xF, "steps": steps}
 

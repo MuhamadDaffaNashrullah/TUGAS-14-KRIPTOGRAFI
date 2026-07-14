@@ -70,7 +70,7 @@
         </div>
 
         <div style="display:flex;gap:10px;flex-wrap:wrap;padding-top:1.25rem;border-top:3px dashed {{ theme.border }};align-items:center;">
-          <button type="submit" name="action" value="{{ mode }}" class="btn-brutal"
+          <button type="submit" name="action" value="{{ mode }}" id="submit-btn" class="btn-brutal"
             style="background:{{ theme.btn_action }};color:{{ theme.text }};padding:10px 24px;font-size:0.875rem;flex-shrink:0;">
             {{ 'Enkripsi' if mode == 'encrypt' else 'Dekripsi' }} →
           </button>
@@ -174,12 +174,19 @@ const T = {
 };
 document.querySelectorAll('.mode-btn').forEach(btn => {
   btn.addEventListener('click', () => {
-    document.getElementById('mode-input').value = btn.dataset.mode;
+    const selectedMode = btn.dataset.mode;
+    document.getElementById('mode-input').value = selectedMode;
     document.querySelectorAll('.mode-btn').forEach(b => {
-      b.style.background = b.dataset.mode === btn.dataset.mode
+      b.style.background = b.dataset.mode === selectedMode
         ? (b.dataset.mode === 'encrypt' ? T.primary : T.decrypt)
         : T.bgAlt;
     });
+    // Update the submit button value and text dynamically
+    const submitBtn = document.getElementById('submit-btn');
+    if (submitBtn) {
+      submitBtn.value = selectedMode;
+      submitBtn.textContent = selectedMode === 'encrypt' ? 'Enkripsi →' : 'Dekripsi →';
+    }
   });
 });
 </script>

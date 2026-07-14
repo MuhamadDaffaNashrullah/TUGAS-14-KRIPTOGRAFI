@@ -47,13 +47,13 @@
         </div>
         <div style="display:flex;gap:2rem;flex-wrap:wrap;">
           <div>
-            <p class="field-label">Encrypt [[1,4],[4,1]]</p>
+            <p class="field-label">Enkripsi [[1,4],[4,1]]</p>
             <div class="mono" style="font-weight:900;font-size:1.1rem;line-height:2;">
               {% for row in MIX_MATRIX %}[{{ row|join(', ') }}]{% if not loop.last %}<br>{% endif %}{% endfor %}
             </div>
           </div>
           <div>
-            <p class="field-label">Decrypt [[9,2],[2,9]]</p>
+            <p class="field-label">Dekripsi [[9,2],[2,9]]</p>
             <div class="mono" style="font-weight:900;font-size:1.1rem;line-height:2;">
               {% for row in INV_MIX_MATRIX %}[{{ row|join(', ') }}]{% if not loop.last %}<br>{% endif %}{% endfor %}
             </div>
