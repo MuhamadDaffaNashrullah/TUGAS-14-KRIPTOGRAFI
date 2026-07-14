@@ -1,0 +1,186 @@
+{% extends 'base.html' %}
+{% from 'macros/state_matrix.html' import state_matrix %}
+
+{% block title %}Simulator{% endblock %}
+
+{% block content %}
+<div style="min-height:100vh;background:{{ theme.bg }};padding-top:80px;padding-bottom:64px;color:{{ theme.text }};">
+  <div class="page-wrap">
+
+    <div style="padding-bottom:2rem;border-bottom:4px solid {{ theme.border }};margin-bottom:2rem;">
+      <div style="display:inline-block;background:{{ theme.primary_dark }};border:3px solid {{ theme.border }};box-shadow:3px 3px 0px {{ theme.shadow }};padding:4px 14px;margin-bottom:14px;font-weight:900;font-size:0.65rem;text-transform:uppercase;letter-spacing:0.12em;">
+        S-AES Simulator
+      </div>
+      <h1 style="font-weight:900;font-size:clamp(1.8rem,5vw,3rem);text-transform:uppercase;line-height:1.1;margin-bottom:10px;">
+        Laboratorium Cipher Interaktif
+      </h1>
+      <p style="font-weight:600;font-size:0.95rem;color:{{ theme.text_muted }};max-width:560px;line-height:1.6;">
+        Masukkan plaintext dan kunci biner 16-bit, lalu jalankan enkripsi atau dekripsi untuk melihat setiap tahapan S-AES secara visual.
+      </p>
+    </div>
+
+    <form method="POST" action="{{ url_for('simulator') }}" id="sim-form">
+      <input type="hidden" name="mode" id="mode-input" value="{{ mode }}">
+
+      <div style="background:{{ theme.surface }};border:4px solid {{ theme.border }};box-shadow:6px 6px 0px {{ theme.shadow }};padding:1.75rem;margin-bottom:2.5rem;">
+
+        <div style="display:flex;gap:12px;margin-bottom:1.5rem;flex-wrap:wrap;">
+          <span class="field-label" style="margin-bottom:0;align-self:center;">Mode:</span>
+          <div style="display:flex;gap:10px;">
+            <button type="button" class="btn-brutal mode-btn" data-mode="encrypt"
+              style="background:{{ theme.primary if mode == 'encrypt' else theme.bg_alt }};color:{{ theme.text }};padding:8px 20px;font-size:0.8rem;">
+              Enkripsi
+            </button>
+            <button type="button" class="btn-brutal mode-btn" data-mode="decrypt"
+              style="background:{{ theme.decrypt if mode == 'decrypt' else theme.bg_alt }};color:{{ theme.text }};padding:8px 20px;font-size:0.8rem;">
+              Dekripsi
+            </button>
+          </div>
+        </div>
+
+        <div class="input-grid" style="margin-bottom:1.5rem;">
+          <div>
+            <label class="field-label">Plaintext / Ciphertext — Format Biner (16-bit)</label>
+            <input name="plaintext" value="{{ plaintext_bin }}" placeholder="0000000000000000"
+              class="input-brutal" style="padding:14px 16px;font-size:1rem;letter-spacing:0.1em;" maxlength="16" spellcheck="false">
+            <div style="min-height:22px;margin-top:6px;">
+              {% if errors.plaintext %}
+              <p style="display:flex;align-items:center;gap:6px;font-size:0.75rem;font-weight:700;color:{{ theme.error }};">⚠ {{ errors.plaintext }}</p>
+              {% elif bin_to_hex_label(plaintext_bin) %}
+              <p class="mono" style="font-size:0.75rem;font-weight:700;color:{{ theme.text_muted }};">HEX: <span style="color:{{ theme.primary_bright }};font-weight:900;">{{ bin_to_hex_label(plaintext_bin) }}</span></p>
+              {% else %}
+              <p style="font-size:0.72rem;font-weight:600;color:{{ theme.text_muted }};">Format: 16 digit biner (0 atau 1)</p>
+              {% endif %}
+            </div>
+          </div>
+          <div>
+            <label class="field-label">Kunci — Format Biner (16-bit)</label>
+            <input name="key" value="{{ key_bin }}" placeholder="0000000000000000"
+              class="input-brutal" style="padding:14px 16px;font-size:1rem;letter-spacing:0.1em;" maxlength="16" spellcheck="false">
+            <div style="min-height:22px;margin-top:6px;">
+              {% if errors.key %}
+              <p style="display:flex;align-items:center;gap:6px;font-size:0.75rem;font-weight:700;color:{{ theme.error }};">⚠ {{ errors.key }}</p>
+              {% elif bin_to_hex_label(key_bin) %}
+              <p class="mono" style="font-size:0.75rem;font-weight:700;color:{{ theme.text_muted }};">HEX: <span style="color:{{ theme.primary_bright }};font-weight:900;">{{ bin_to_hex_label(key_bin) }}</span></p>
+              {% else %}
+              <p style="font-size:0.72rem;font-weight:600;color:{{ theme.text_muted }};">Format: 16 digit biner (0 atau 1)</p>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:10px;flex-wrap:wrap;padding-top:1.25rem;border-top:3px dashed {{ theme.border }};align-items:center;">
+          <button type="submit" name="action" value="{{ mode }}" class="btn-brutal"
+            style="background:{{ theme.btn_action }};color:{{ theme.text }};padding:10px 24px;font-size:0.875rem;flex-shrink:0;">
+            {{ 'Enkripsi' if mode == 'encrypt' else 'Dekripsi' }} →
+          </button>
+          <button type="submit" name="action" value="reset" class="btn-brutal"
+            style="background:{{ theme.btn_secondary }};color:{{ theme.text }};padding:10px 18px;font-size:0.8rem;flex-shrink:0;">
+            ↺ Reset
+          </button>
+          <button type="submit" name="action" value="test_vector" class="btn-brutal"
+            style="background:{{ theme.btn_test }};color:{{ theme.text }};padding:10px 18px;font-size:0.8rem;flex-shrink:0;">
+            Test Vector
+          </button>
+        </div>
+      </div>
+
+      {% if result %}
+      <div style="display:flex;flex-direction:column;gap:2.5rem;">
+
+        {% include 'partials/result_panel.html' %}
+
+        <div class="collapse-section">
+          <button type="submit" name="show_key_exp" value="{{ '0' if show_key_exp else '1' }}" class="collapse-toggle"
+            style="background:{{ theme.key_exp_open if show_key_exp else theme.surface }};border-bottom:{{ '4px solid ' ~ theme.border if show_key_exp else 'none' }};">
+            <div style="display:flex;align-items:center;gap:12px;">
+              <div style="width:10px;height:10px;background:{{ theme.primary if show_key_exp else theme.text_muted }};border:2px solid {{ theme.border }};"></div>
+              <div>
+                <p style="font-weight:900;font-size:0.9rem;text-transform:uppercase;">Ekspansi Kunci (Key Expansion)</p>
+                <p style="font-size:0.72rem;font-weight:600;color:{{ theme.text_muted }};margin-top:2px;">Pelacakan pembangkitan K0 → K1 → K2</p>
+              </div>
+            </div>
+            <span>{{ '▲' if show_key_exp else '▼' }}</span>
+          </button>
+          {% if show_key_exp %}
+          <div class="collapse-body">{% include 'partials/key_expansion.html' %}</div>
+          {% endif %}
+        </div>
+
+        <div class="collapse-section">
+          <button type="submit" name="show_gf" value="{{ '0' if show_gf else '1' }}" class="collapse-toggle"
+            style="background:{{ theme.gf_open if show_gf else theme.surface }};border-bottom:{{ '4px solid ' ~ theme.border if show_gf else 'none' }};">
+            <div style="display:flex;align-items:center;gap:12px;">
+              <div style="width:10px;height:10px;background:{{ theme.primary if show_gf else theme.text_muted }};border:2px solid {{ theme.border }};"></div>
+              <div>
+                <p style="font-weight:900;font-size:0.9rem;text-transform:uppercase;">Penjelajah Aritmatika GF(2⁴)</p>
+                <p style="font-size:0.72rem;font-weight:600;color:{{ theme.text_muted }};margin-top:2px;">Perkalian Galois Field secara interaktif</p>
+              </div>
+            </div>
+            <span>{{ '▲' if show_gf else '▼' }}</span>
+          </button>
+          {% if show_gf %}
+          <div class="collapse-body">{% include 'partials/gf_viz.html' %}</div>
+          {% endif %}
+        </div>
+
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding-bottom:1rem;border-bottom:4px solid {{ theme.border }};margin-bottom:1.25rem;flex-wrap:wrap;gap:10px;">
+            <h2 style="font-weight:900;font-size:1.25rem;text-transform:uppercase;">Langkah-langkah Operasi</h2>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+              <span class="mono" style="font-weight:900;font-size:0.7rem;background:{{ theme.bg_alt }};border:2px solid {{ theme.border }};padding:4px 12px;">{{ result.steps|length }} langkah</span>
+              <span class="mono" style="font-weight:900;font-size:0.7rem;background:{{ theme.encrypt_badge if result.mode == 'encrypt' else theme.decrypt_badge }};border:2px solid {{ theme.border }};padding:4px 12px;">
+                {{ 'Enkripsi' if result.mode == 'encrypt' else 'Dekripsi' }}
+              </span>
+            </div>
+          </div>
+
+          <div class="scrollbar-none" style="display:flex;gap:8px;overflow-x:auto;padding-bottom:12px;margin-bottom:1.25rem;">
+            {% for step in result.steps %}
+            <button type="button" class="step-tab mono" data-step="{{ step.id }}"
+              style="flex-shrink:0;font-weight:900;font-size:0.7rem;text-transform:uppercase;white-space:nowrap;padding:6px 14px;border:3px solid {{ theme.border }};background:{{ theme.surface }};color:{{ theme.text }};box-shadow:2px 2px 0px {{ theme.shadow }};cursor:pointer;">
+              <span style="opacity:0.5;">{{ loop.index }} </span>{{ step.operation }}
+            </button>
+            {% endfor %}
+          </div>
+
+          <div class="steps-grid">
+            {% for step in result.steps %}
+            <div id="step-{{ step.id }}">
+              {% with step_index=loop.index %}
+                {% include 'partials/step_card.html' %}
+              {% endwith %}
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+      {% else %}
+      <div style="background:{{ theme.surface }};border:4px solid {{ theme.border }};box-shadow:4px 4px 0px {{ theme.shadow }};padding:3rem;text-align:center;margin-top:1rem;">
+        <div style="width:64px;height:64px;background:{{ theme.gold }};border:4px solid {{ theme.border }};box-shadow:4px 4px 0px {{ theme.shadow }};display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;font-size:1.75rem;">🔐</div>
+        <h3 style="font-weight:900;font-size:1.1rem;text-transform:uppercase;margin-bottom:8px;">Simulator Siap</h3>
+        <p style="font-weight:600;font-size:0.9rem;color:{{ theme.text_muted }};">Masukkan plaintext dan kunci biner 16-bit, lalu tekan tombol Enkripsi atau muat Test Vector.</p>
+      </div>
+      {% endif %}
+    </form>
+  </div>
+</div>
+
+<script>
+const T = {
+  primary: {{ theme.primary|tojson }},
+  decrypt: {{ theme.decrypt|tojson }},
+  bgAlt: {{ theme.bg_alt|tojson }},
+};
+document.querySelectorAll('.mode-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.getElementById('mode-input').value = btn.dataset.mode;
+    document.querySelectorAll('.mode-btn').forEach(b => {
+      b.style.background = b.dataset.mode === btn.dataset.mode
+        ? (b.dataset.mode === 'encrypt' ? T.primary : T.decrypt)
+        : T.bgAlt;
+    });
+  });
+});
+</script>
+{% endblock %}

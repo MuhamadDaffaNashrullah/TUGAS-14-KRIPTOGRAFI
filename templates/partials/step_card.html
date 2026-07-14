@@ -1,0 +1,90 @@
+{% from 'macros/state_matrix.html' import state_matrix %}
+{% set color = OP_COLORS.get(step.operation, theme.primary_dark) %}
+
+<details class="step-card step-details" style="padding:1.5rem;border-radius:0;">
+  <summary style="list-style:none;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span style="background:{{ color }};border:3px solid {{ theme.border }};box-shadow:2px 2px 0px {{ theme.shadow }};font-weight:900;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;padding:4px 10px;">{{ step.operation }}</span>
+        {% if step.round_key %}
+        <span style="background:{{ theme.gold }};border:2px solid {{ theme.border }};font-weight:800;font-size:0.65rem;padding:2px 8px;color:{{ theme.border_dark }};">{{ step.round_key }}</span>
+        {% endif %}
+      </div>
+      <div style="background:{{ theme.primary_dark }};color:{{ theme.text }};font-weight:900;font-size:0.75rem;width:28px;height:28px;display:flex;align-items:center;justify-content:center;">{{ step_index }}</div>
+    </div>
+    <h3 style="font-weight:900;font-size:0.95rem;text-transform:uppercase;margin-bottom:0.25rem;">{{ step.label }}</h3>
+    <p style="font-size:0.8rem;color:{{ theme.text_muted }};line-height:1.6;margin-bottom:1.25rem;">{{ step.explanation }}</p>
+    <div style="display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;">
+      {{ state_matrix(step.state_before, 'Before', 'sm') }}
+      <div style="background:{{ theme.primary_dark }};padding:8px;border:3px solid {{ theme.border }};box-shadow:3px 3px 0px {{ theme.gold }};color:{{ theme.text }};font-weight:900;">→</div>
+      {{ state_matrix(step.state_after, 'After', 'sm') }}
+    </div>
+    <p style="font-size:0.65rem;font-weight:700;color:{{ theme.text_muted }};margin-top:1rem;text-transform:uppercase;">Klik untuk detail trace ▼</p>
+  </summary>
+
+  <div style="margin-top:1.5rem;padding-top:1.5rem;border-top:3px dashed {{ theme.border }};">
+    {% if step.operation in ['SubNibble', 'InvSubNibble'] and step.trace %}
+    <p class="field-label">Substitution Trace</p>
+    <div class="trace-grid">
+      {% for t in step.trace %}
+      <div style="background:{{ color }};border:3px solid {{ theme.border }};box-shadow:3px 3px 0px {{ theme.shadow }};padding:1rem 1.25rem;margin-bottom:0.75rem;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+          <span class="mono" style="font-size:0.7rem;font-weight:700;">[{{ t.position[0] }},{{ t.position[1] }}]</span>
+          <span class="mono" style="font-size:0.65rem;font-weight:600;color:{{ theme.text_muted }};">{{ t.description }}</span>
+        </div>
+        <div class="mono" style="display:flex;align-items:center;gap:8px;font-size:0.9rem;font-weight:900;">
+          <span>{{ t.input_hex }}</span> → <span style="background:{{ theme.gold }};padding:2px 6px;border:2px solid {{ theme.border }};color:{{ theme.border_dark }};">{{ t.output_hex }}</span>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    {% elif step.operation == 'AddRoundKey' and step.trace %}
+    <p class="field-label">XOR Operations</p>
+    <div class="trace-grid">
+      {% for t in step.trace %}
+      <div style="background:{{ theme.surface_elevated }};border:3px solid {{ theme.border }};box-shadow:3px 3px 0px {{ theme.shadow }};padding:1rem 1.25rem;">
+        <span class="mono" style="font-size:0.68rem;font-weight:700;">[{{ t.position[0] }},{{ t.position[1] }}]</span>
+        <div class="mono" style="font-size:0.72rem;font-weight:700;margin-top:8px;display:flex;flex-direction:column;gap:4px;">
+          <div>{{ t.state_bin }} ({{ t.state_hex }})</div>
+          <div style="color:{{ theme.text_muted }};">⊕ {{ t.key_bin }} ({{ t.key_hex }})</div>
+          <div style="border-top:2px solid {{ theme.border }};padding-top:4px;font-weight:900;color:{{ theme.primary_bright }};">= {{ t.result_bin }} ({{ t.result_hex }})</div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    {% elif step.operation in ['ShiftRows', 'InvShiftRows'] and step.trace %}
+    <p class="field-label">Row Shift Details</p>
+    {% for r in [0, 1] %}
+    {% set row_key = 'row' ~ r %}
+    {% set row_data = step.trace[row_key] %}
+    <div style="background:{{ theme.surface_elevated }};border:3px solid {{ theme.border }};box-shadow:3px 3px 0px {{ theme.shadow }};padding:1rem 1.25rem;margin-bottom:0.75rem;">
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+        <span class="mono" style="font-weight:900;width:40px;">Row {{ r }}</span>
+        {% for n in row_data.before %}
+        <span class="mono" style="font-weight:900;background:{{ theme.bg_alt }};border:2px solid {{ theme.border }};padding:4px 8px;">{{ n|hex_pad(1) }}</span>
+        {% endfor %}
+        →
+        {% for n in row_data.after %}
+        <span class="mono" style="font-weight:900;background:{{ theme.primary if row_data.shifted else theme.bg_alt }};border:2px solid {{ theme.border }};padding:4px 8px;">{{ n|hex_pad(1) }}</span>
+        {% endfor %}
+        {% if r == 0 %}<span style="font-size:0.65rem;font-weight:700;color:{{ theme.text_muted }};">unchanged</span>{% endif %}
+        {% if r == 1 and row_data.shifted %}<span style="font-size:0.65rem;font-weight:900;background:{{ theme.gold }};border:2px solid {{ theme.border }};padding:2px 6px;color:{{ theme.border_dark }};">shifted ↔</span>{% endif %}
+      </div>
+    </div>
+    {% endfor %}
+
+    {% elif step.operation in ['MixColumns', 'InvMixColumns'] and step.trace %}
+    <p class="field-label">GF(2⁴) Column Operations</p>
+    {% for t in step.trace %}
+    <div style="background:{{ theme.surface_elevated }};border:3px solid {{ theme.border }};box-shadow:3px 3px 0px {{ theme.shadow }};padding:1rem 1.25rem;margin-bottom:0.75rem;">
+      <p style="font-weight:900;font-size:0.7rem;text-transform:uppercase;margin-bottom:8px;">Column {{ t.col }}</p>
+      {% for eq in t.equations %}
+      <p class="mono" style="font-size:0.72rem;font-weight:700;margin-bottom:4px;">{{ eq }}</p>
+      {% endfor %}
+    </div>
+    {% endfor %}
+    {% endif %}
+  </div>
+</details>

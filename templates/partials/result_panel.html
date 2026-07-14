@@ -1,0 +1,63 @@
+{% from 'macros/state_matrix.html' import state_matrix %}
+{% set is_encrypt = result.mode == 'encrypt' %}
+{% set output_bin = result.ciphertext_bin if is_encrypt else result.plaintext_bin %}
+{% set output_hex = result.ciphertext_hex if is_encrypt else result.plaintext_hex %}
+{% set input_bin = result.plaintext_bin if is_encrypt else result.ciphertext_bin %}
+{% set input_hex = result.plaintext_hex if is_encrypt else result.ciphertext_hex %}
+
+<div style="background:{{ theme.surface }};border:4px solid {{ theme.border }};box-shadow:6px 6px 0px {{ theme.shadow }};">
+  <div style="background:{{ theme.primary if is_encrypt else theme.decrypt }};border-bottom:4px solid {{ theme.border }};padding:12px 24px;display:flex;align-items:center;gap:12px;">
+    <div style="width:10px;height:10px;background:{{ theme.border_dark }};border:2px solid {{ theme.border }};"></div>
+    <span style="font-weight:900;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.12em;color:{{ theme.text }};">{{ 'Hasil Enkripsi' if is_encrypt else 'Hasil Dekripsi' }}</span>
+    <span style="margin-left:auto;font-weight:900;font-size:0.65rem;text-transform:uppercase;background:{{ theme.border_dark }};color:{{ theme.primary_bright }};padding:3px 10px;">S-AES · {{ result.steps|length }} ops</span>
+  </div>
+
+  <div style="padding:1.5rem;">
+    <div class="result-io-grid" style="margin-bottom:2.5rem;">
+      <div>
+        <p class="field-label">{{ 'Plaintext' if is_encrypt else 'Ciphertext' }} Input</p>
+        <div style="background:{{ theme.bg_alt }};border:3px solid {{ theme.border }};padding:1rem;margin-bottom:10px;">
+          <p class="mono" style="font-size:0.7rem;font-weight:700;color:{{ theme.text_muted }};margin-bottom:4px;">BINER</p>
+          <p class="mono" style="font-size:0.85rem;font-weight:900;word-break:break-all;">{{ input_bin }}</p>
+          <p class="mono" style="font-size:0.7rem;font-weight:700;color:{{ theme.text_muted }};margin-top:8px;">HEX: <span style="color:{{ theme.primary_bright }};">0x{{ input_hex }}</span></p>
+        </div>
+        {{ state_matrix(result.initial_state, 'Input State', 'sm') }}
+      </div>
+
+      <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+        <div style="background:{{ theme.primary_dark }};color:{{ theme.text }};border:3px solid {{ theme.border }};box-shadow:3px 3px 0px {{ theme.gold }};width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:1.25rem;font-weight:900;">→</div>
+        <span class="mono" style="font-size:0.6rem;font-weight:700;color:{{ theme.text_muted }};text-transform:uppercase;">S-AES</span>
+      </div>
+
+      <div>
+        <p class="field-label">{{ 'Ciphertext' if is_encrypt else 'Plaintext' }} Output</p>
+        <div style="background:{{ theme.encrypt_output if is_encrypt else theme.decrypt_output }};border:3px solid {{ theme.border }};box-shadow:3px 3px 0px {{ theme.shadow }};padding:1rem;margin-bottom:10px;">
+          <p class="mono" style="font-size:0.7rem;font-weight:700;margin-bottom:4px;">BINER</p>
+          <p class="mono" style="font-size:0.85rem;font-weight:900;word-break:break-all;">{{ output_bin }}</p>
+          <p class="mono" style="font-size:0.7rem;font-weight:700;margin-top:8px;">HEX: <span style="font-weight:900;color:{{ theme.primary_bright }};">0x{{ output_hex }}</span></p>
+        </div>
+        {{ state_matrix(result.final_state, 'Output State', 'sm') }}
+      </div>
+    </div>
+
+    <div style="background:{{ theme.gold }};border:4px solid {{ theme.border }};padding:1rem 1.25rem;margin-bottom:2.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;color:{{ theme.border_dark }};">
+      <span class="field-label" style="margin-bottom:0;color:{{ theme.border_dark }};">{{ 'Output' if is_encrypt else 'Recovered' }}</span>
+      <span class="mono" style="font-weight:900;font-size:1.25rem;letter-spacing:0.05em;">{{ output_bin }}</span>
+      <span class="mono" style="font-weight:900;font-size:0.9rem;">0x{{ output_hex }}</span>
+    </div>
+
+    <div>
+      <p class="field-label">Round Keys</p>
+      <div class="round-keys-grid">
+        {% for k_name, k_color in [('K0', theme.k0), ('K1', theme.k1), ('K2', theme.k2)] %}
+        {% set key_val = result.key_data[k_name] %}
+        <div style="background:{{ k_color }};border:4px solid {{ theme.border }};box-shadow:4px 4px 0px {{ theme.shadow }};padding:1rem;">
+          <p class="field-label">{{ k_name }}</p>
+          <p class="mono" style="font-weight:900;font-size:0.8rem;word-break:break-all;">{{ key_val|bin_pad(16) }}</p>
+          <p class="mono" style="font-weight:700;font-size:0.7rem;color:{{ theme.text_muted }};margin-top:4px;">0x{{ key_val|hex_pad(4) }}</p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>

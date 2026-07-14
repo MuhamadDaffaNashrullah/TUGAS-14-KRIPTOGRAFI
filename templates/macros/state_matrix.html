@@ -1,0 +1,21 @@
+{% macro state_matrix(state, label='', size='sm') %}
+{% set min_wh = 56 if size == 'sm' else 72 %}
+<div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+  {% if label %}
+  <span class="field-label">{{ label }}</span>
+  {% endif %}
+  <div class="matrix-wrap">
+    {% for row in range(2) %}
+      {% for col in range(2) %}
+        {% set nibble = state[row][col] %}
+        {% set cell_class = 'matrix-cell-' ~ row ~ col %}
+        <div class="matrix-cell {{ cell_class }}" style="min-width:{{ min_wh }}px;min-height:{{ min_wh }}px;padding:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;">
+          <span class="mono" style="font-size:0.6rem;font-weight:700;">{{ nibble|bin_pad(4) }}</span>
+          <span class="mono" style="font-size:0.7rem;font-weight:900;">{{ nibble|hex_pad(1) }}</span>
+          <span class="mono matrix-coord">[{{ row }},{{ col }}]</span>
+        </div>
+      {% endfor %}
+    {% endfor %}
+  </div>
+</div>
+{% endmacro %}

@@ -1,0 +1,38 @@
+<div style="display:flex;flex-direction:column;gap:2rem;">
+  <div>
+    <h3 style="font-weight:900;font-size:1.2rem;text-transform:uppercase;">GF(2⁴) Multiplication</h3>
+    <p style="font-size:0.85rem;font-weight:600;color:{{ theme.text_muted }};margin-top:4px;">Pilih dua nibble untuk melihat langkah perkalian Galois Field</p>
+  </div>
+
+  <div style="display:flex;gap:2rem;flex-wrap:wrap;align-items:flex-start;">
+    {% for label, name, val in [('Operand A', 'gf_a', gf_a), ('Operand B', 'gf_b', gf_b)] %}
+    <div style="display:flex;flex-direction:column;align-items:center;gap:12px;">
+      <span class="field-label">{{ label }}</span>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;">
+        {% for n in range(16) %}
+        <button type="submit" name="{{ name }}" value="{{ n }}" class="mono"
+          style="width:40px;height:40px;font-weight:900;font-size:0.85rem;border:3px solid {{ theme.border }};background:{{ theme.primary if val == n else theme.bg_alt }};box-shadow:{{ '2px 2px 0px ' ~ theme.shadow if val == n else 'none' }};cursor:pointer;color:{{ theme.text }};">
+          {{ n|hex_pad(1) }}
+        </button>
+        {% endfor %}
+      </div>
+      <p class="mono" style="font-weight:900;font-size:0.9rem;">{{ val|hex_pad(1) }} = {{ val|bin_pad(4) }}₂</p>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div style="background:{{ theme.gold }};border:4px solid {{ theme.border }};padding:1rem 1.25rem;text-align:center;color:{{ theme.border_dark }};">
+    <p class="mono" style="font-weight:900;font-size:1.25rem;">0x{{ gf_a|hex_pad(1) }} × 0x{{ gf_b|hex_pad(1) }} = 0x{{ gf_result.result|hex_pad(1) }}</p>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:8px;">
+    {% for step in gf_result.steps %}
+    <div style="background:{{ theme.gold if step.get('final') else (theme.surface_elevated if step.get('reduction') else theme.bg_alt) }};border:3px solid {{ theme.border }};padding:12px 16px;color:{{ theme.text if not step.get('final') else theme.border_dark }};">
+      <p style="font-size:0.8rem;font-weight:600;">{{ step.description }}</p>
+      {% if step.product is defined %}
+      <p class="mono" style="font-size:0.72rem;font-weight:700;margin-top:4px;color:{{ theme.text_muted if not step.get('final') else theme.border_dark }};">product = 0x{{ step.product|hex_pad(1) }}</p>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+</div>

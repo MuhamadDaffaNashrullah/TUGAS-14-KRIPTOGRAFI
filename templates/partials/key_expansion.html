@@ -1,0 +1,33 @@
+{% set kd = result.key_data %}
+{% set d = kd.display %}
+
+<div style="display:flex;flex-direction:column;gap:1.5rem;">
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:12px;">
+    {% for w in ['w0','w1','w2','w3','w4','w5'] %}
+    <div style="background:{{ theme[w] }};border:3px solid {{ theme.border }};box-shadow:3px 3px 0px {{ theme.shadow }};padding:12px 14px;text-align:center;">
+      <p class="field-label" style="margin-bottom:4px;">{{ w|upper }}</p>
+      <p class="mono" style="font-weight:900;font-size:1rem;">{{ d[w] }}</p>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div style="background:{{ theme.surface_elevated }};border:4px solid {{ theme.border }};box-shadow:4px 4px 0px {{ theme.shadow }};padding:1.5rem;">
+    <p class="field-label">Round Keys</p>
+    <div class="round-keys-grid">
+      {% for k, hex_val in [('K0', d.K0), ('K1', d.K1), ('K2', d.K2)] %}
+      <div style="background:{{ theme.gold }};border:3px solid {{ theme.border }};padding:1rem;text-align:center;color:{{ theme.border_dark }};">
+        <p class="field-label" style="color:{{ theme.border_dark }};">{{ k }}</p>
+        <p class="mono" style="font-weight:900;font-size:1.1rem;">0x{{ hex_val }}</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div style="background:{{ theme.bg_alt }};border:3px solid {{ theme.border }};padding:1rem;">
+    <p class="field-label">Equations</p>
+    <p class="mono" style="font-size:0.85rem;font-weight:700;margin-bottom:6px;">{{ kd.trace.step4.equation }}</p>
+    <p class="mono" style="font-size:0.85rem;font-weight:700;margin-bottom:6px;">{{ kd.trace.step5.equation }}</p>
+    <p class="mono" style="font-size:0.85rem;font-weight:700;margin-bottom:6px;">{{ kd.trace.step8.equation }}</p>
+    <p class="mono" style="font-size:0.85rem;font-weight:700;">{{ kd.trace.step9.equation }}</p>
+  </div>
+</div>

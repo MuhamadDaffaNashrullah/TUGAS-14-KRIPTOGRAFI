@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block title %}Referensi{% endblock %}
+
+{% block content %}
+<div style="min-height:100vh;background:{{ theme.bg }};padding-top:80px;padding-bottom:64px;color:{{ theme.text }};">
+  <div class="page-wrap-wide">
+    <div style="padding-bottom:2rem;border-bottom:4px solid {{ theme.border }};margin-bottom:2rem;">
+      <div style="display:inline-block;background:{{ theme.primary_dark }};border:3px solid {{ theme.border }};box-shadow:3px 3px 0px {{ theme.shadow }};padding:4px 14px;margin-bottom:14px;font-weight:900;font-size:0.65rem;text-transform:uppercase;letter-spacing:0.12em;">Referensi S-AES</div>
+      <h1 style="font-weight:900;font-size:clamp(1.8rem,5vw,3rem);text-transform:uppercase;line-height:1.1;">Dokumentasi & Tabel</h1>
+    </div>
+
+    <div class="docs-grid">
+      {% for title, data, header_bg, desc in [
+        ('S-Box', SBOX, theme.docs_sbox, 'Tabel substitusi non-linier untuk operasi SubNibble.'),
+        ('Inverse S-Box', INV_SBOX, theme.docs_inv_sbox, 'Tabel invers untuk operasi InvSubNibble pada dekripsi.'),
+      ] %}
+      <div class="card-brutal" style="background:{{ theme.surface }};padding:2rem;">
+        <div style="background:{{ header_bg }};border:4px solid {{ theme.border }};box-shadow:3px 3px 0px {{ theme.shadow }};padding:12px 20px;margin-bottom:1rem;">
+          <h3 style="font-weight:900;font-size:1.1rem;text-transform:uppercase;">{{ title }}</h3>
+        </div>
+        <p style="font-size:0.85rem;font-weight:600;color:{{ theme.text_muted }};margin-bottom:1.25rem;line-height:1.6;">{{ desc }}</p>
+        <table style="border-collapse:collapse;width:100%;max-width:300px;margin:0 auto;">
+          <thead>
+            <tr>
+              <th class="mono" style="padding:8px;text-align:right;font-size:0.72rem;color:{{ theme.text_muted }};">baris\kol</th>
+              {% for c in range(4) %}<th class="mono" style="padding:8px;font-weight:900;color:{{ theme.primary_bright }};">{{ c }}</th>{% endfor %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in data %}
+            <tr>
+              <td class="mono" style="padding:8px;text-align:right;font-weight:900;padding-right:12px;">{{ loop.index0 }}</td>
+              {% for val in row %}
+              <td class="mono" style="padding:10px;text-align:center;font-weight:900;border:2px solid {{ theme.border }};background:{{ theme.bg_alt }};">{{ val|hex_pad(1) }}</td>
+              {% endfor %}
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% endfor %}
+
+      <div class="card-brutal" style="background:{{ theme.surface }};padding:2rem;">
+        <div style="background:{{ theme.docs_mix }};border:4px solid {{ theme.border }};box-shadow:3px 3px 0px {{ theme.shadow }};padding:12px 20px;margin-bottom:1rem;">
+          <h3 style="font-weight:900;font-size:1.1rem;text-transform:uppercase;">Matriks MixColumns</h3>
+        </div>
+        <div style="display:flex;gap:2rem;flex-wrap:wrap;">
+          <div>
+            <p class="field-label">Encrypt [[1,4],[4,1]]</p>
+            <div class="mono" style="font-weight:900;font-size:1.1rem;line-height:2;">
+              {% for row in MIX_MATRIX %}[{{ row|join(', ') }}]{% if not loop.last %}<br>{% endif %}{% endfor %}
+            </div>
+          </div>
+          <div>
+            <p class="field-label">Decrypt [[9,2],[2,9]]</p>
+            <div class="mono" style="font-weight:900;font-size:1.1rem;line-height:2;">
+              {% for row in INV_MIX_MATRIX %}[{{ row|join(', ') }}]{% if not loop.last %}<br>{% endif %}{% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-brutal" style="background:{{ theme.surface }};padding:2rem;">
+        <div style="background:{{ theme.docs_rcon }};border:4px solid {{ theme.border }};box-shadow:3px 3px 0px {{ theme.shadow }};padding:12px 20px;margin-bottom:1rem;">
+          <h3 style="font-weight:900;font-size:1.1rem;text-transform:uppercase;">Round Constants (RCON)</h3>
+        </div>
+        <div style="display:flex;gap:16px;">
+          {% for r in RCON %}
+          <div style="background:{{ theme.gold }};border:3px solid {{ theme.border }};padding:12px 24px;text-align:center;color:{{ theme.border_dark }};">
+            <p class="field-label" style="color:{{ theme.border_dark }};">RCON{{ loop.index }}</p>
+            <p class="mono" style="font-weight:900;font-size:1rem;">0x{{ r|hex_pad(2) }}</p>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:3rem;text-align:center;">
+      <a href="{{ url_for('simulator') }}" class="btn-brutal" style="background:{{ theme.primary_dark }};color:{{ theme.text }};padding:14px 32px;font-size:1rem;">Mulai Enkripsi →</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block title %}Beranda{% endblock %}
+
+{% block content %}
+<div style="background:{{ theme.bg }};min-height:100vh;color:{{ theme.text }};">
+
+  <section style="background:{{ theme.hero }};border-bottom:4px solid {{ theme.border }};padding-top:calc(3rem + 72px);padding-bottom:3rem;padding-left:clamp(1rem,5vw,5rem);padding-right:clamp(1rem,5vw,5rem);">
+    <div class="page-wrap-wide">
+      <div style="display:inline-flex;align-items:center;gap:10px;background:{{ theme.surface }};border:3px solid {{ theme.border }};box-shadow:3px 3px 0px {{ theme.shadow }};padding:6px 16px;margin-bottom:1.5rem;">
+        <div style="width:8px;height:8px;background:{{ theme.primary }};border:2px solid {{ theme.border }};"></div>
+        <span style="font-weight:900;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.12em;">Platform Edukasi Kriptografi</span>
+      </div>
+      <h1 style="font-weight:900;font-size:clamp(3rem,8vw,6.5rem);line-height:1;text-transform:uppercase;letter-spacing:-0.03em;margin-bottom:1.5rem;">
+        CIPHER<span style="color:{{ theme.primary }};-webkit-text-stroke:2px {{ theme.border }};">FLOW</span>
+      </h1>
+      <p style="font-size:clamp(1rem,2.5vw,1.3rem);font-weight:700;max-width:600px;line-height:1.5;margin-bottom:2rem;color:{{ theme.text }};">
+        Platform visualisasi interaktif algoritma
+        <span style="background:{{ theme.primary_dark }};padding:2px 8px;border:2px solid {{ theme.border }};color:{{ theme.text }};">Simplified AES (S-AES)</span>
+        — pahami setiap langkah enkripsi secara mendalam.
+      </p>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:3rem;">
+        <a href="{{ url_for('simulator') }}" class="btn-brutal" style="background:{{ theme.primary_dark }};color:{{ theme.text }};padding:14px 32px;font-size:1rem;">Mulai Simulator →</a>
+        <a href="{{ url_for('docs') }}" class="btn-brutal" style="background:{{ theme.surface }};color:{{ theme.text }};padding:14px 32px;font-size:1rem;">Lihat Referensi</a>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        {% for label in ['Plaintext','AddRoundKey','SubNibble','ShiftRows','MixColumns','AddRoundKey','SubNibble','ShiftRows','AddRoundKey','Ciphertext'] %}
+        <span class="mono" style="background:{{ theme.primary if loop.first or loop.last else theme.surface }};border:2px solid {{ theme.border }};font-weight:900;font-size:0.72rem;text-transform:uppercase;padding:4px 12px;display:flex;align-items:center;gap:6px;color:{{ theme.text }};">
+          {{ label }}{% if not loop.last %} →{% endif %}
+        </span>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <section style="background:{{ theme.stats }};border-bottom:4px solid {{ theme.border }};padding:2rem clamp(1rem,5vw,5rem);">
+    <div class="page-wrap-wide stats-grid">
+      {% for value, label in [('9','Operasi S-AES'),('3','Round Keys'),('16-bit','Ukuran Blok'),('100%','Open Source')] %}
+      <div style="text-align:center;">
+        <p style="font-weight:900;font-size:clamp(2rem,5vw,3rem);line-height:1.1;color:{{ theme.primary_bright }};">{{ value }}</p>
+        <p style="font-weight:900;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.1em;margin-top:4px;">{{ label }}</p>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section style="background:{{ theme.bg }};border-bottom:4px solid {{ theme.border }};padding:4rem clamp(1rem,5vw,5rem);">
+    <div class="page-wrap-wide">
+      <p style="font-weight:900;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.15em;color:{{ theme.text_muted }};margin-bottom:8px;">Fitur Platform</p>
+      <h2 style="font-weight:900;font-size:clamp(1.75rem,5vw,3.5rem);text-transform:uppercase;line-height:1.1;margin-bottom:2.5rem;">Semua yang kamu butuhkan</h2>
+      <div class="features-grid">
+        {% for title, desc, label, bg_key in [
+          ('Visualisasi Bertahap', 'Setiap operasi S-AES ditampilkan disertai transformasi state matrix yang terstruktur.', '01', 'feature_1'),
+          ('Key Expansion', 'Proses pembangkitan kunci K0, K1, K2 melalui RotWord, SubWord, dan RCON.', '02', 'feature_2'),
+          ('Aritmatika GF(2⁴)', 'Perkalian Galois Field ditelusuri langkah demi langkah.', '03', 'feature_3'),
+          ('Enkripsi & Dekripsi', 'Mendukung cipher maju dan cipher balik dengan operasi invers.', '04', 'feature_4'),
+          ('Tabel Referensi', 'S-Box, Inverse S-Box, matriks MixColumns, dan RCON tersedia lengkap.', '05', 'feature_5'),
+          ('Test Vector Terverifikasi', 'Diverifikasi menggunakan test vector dari buku teks Stallings.', '06', 'feature_6'),
+        ] %}
+        <div class="card-brutal" style="background:{{ theme[bg_key] }};padding:2rem;">
+          <p style="font-weight:900;font-size:2.5rem;opacity:0.25;line-height:1;margin-bottom:0.5rem;color:{{ theme.primary }};">{{ label }}</p>
+          <h3 style="font-weight:900;font-size:1.1rem;text-transform:uppercase;margin-bottom:0.75rem;">{{ title }}</h3>
+          <p style="font-weight:600;font-size:0.9rem;line-height:1.65;color:{{ theme.text_muted }};">{{ desc }}</p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <section style="background:{{ theme.cta }};border-bottom:4px solid {{ theme.border }};padding:5rem clamp(1.5rem,5vw,5rem);text-align:center;">
+    <h2 style="font-weight:900;font-size:clamp(2rem,6vw,4rem);text-transform:uppercase;line-height:1.1;margin-bottom:1.5rem;">Siap Mulai<br>Eksplorasi?</h2>
+    <p style="font-weight:700;font-size:1.1rem;margin-bottom:2.5rem;max-width:500px;margin:0 auto 2.5rem;">Masukkan plaintext dan kunci 16-bit, lalu saksikan setiap langkah enkripsi S-AES secara interaktif.</p>
+    <a href="{{ url_for('simulator') }}" class="btn-brutal" style="background:{{ theme.border_dark }};color:{{ theme.text }};padding:18px 48px;font-size:1.1rem;">Buka Simulator →</a>
+  </section>
+
+  <footer style="background:{{ theme.footer }};border-top:4px solid {{ theme.primary }};padding:2rem clamp(1.5rem,5vw,5rem);">
+    <div class="page-wrap-wide" style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px;">
+      <span style="font-weight:900;color:{{ theme.primary }};">CipherFlow</span>
+      <p style="font-weight:700;font-size:0.8rem;color:{{ theme.text_muted }};">Platform Visualisasi S-AES · Proyek Kriptografi Akademik</p>
+      <div style="display:flex;gap:20px;">
+        <a href="{{ url_for('home') }}" style="font-weight:800;font-size:0.8rem;color:{{ theme.text }};text-decoration:none;">Beranda</a>
+        <a href="{{ url_for('simulator') }}" style="font-weight:800;font-size:0.8rem;color:{{ theme.text }};text-decoration:none;">Simulator</a>
+        <a href="{{ url_for('docs') }}" style="font-weight:800;font-size:0.8rem;color:{{ theme.text }};text-decoration:none;">Referensi</a>
+      </div>
+    </div>
+  </footer>
+</div>
+{% endblock %}
